@@ -69,5 +69,4 @@ with open('prisons.csv', 'rb') as prisonfile:
     data = csv.reader(prisonfile)
     for prison in data:
         name, url, fax = prison
-        #load_reviews(name)
         scrape_yelp(name, url, fax)
