@@ -15,8 +15,8 @@ def send_fax(number, reviews):
     else:
         content += " A NEW REVIEW"
     content += "\n\n" + "\n\n".join(reviews)
-    #print content
-    r = fax_api.send(to=[number], string_data=content, string_data_type='text')
+    print content
+    #r = fax_api.send(to=[number], string_data=content, string_data_type='text')
 
 def load_reviews(name):
     filename = 'reviews/' + name.replace(' ', '_') + '.json'
