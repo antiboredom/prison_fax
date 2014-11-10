@@ -1,28 +1,36 @@
-import json, pprint
+from bs4 import BeautifulSoup
+import urllib, time
 
+def get_page(url):
+    """Retrieve yelp reviews from a url"""
+    data = urllib.urlopen(url).read()
+    soup = BeautifulSoup(data)
+    reviews = []
 
-# https://github.com/gfairchild/yelpapi
-from yelpapi import YelpAPI
-import json, glob
+    for review in soup.select('.review-content'):
+        rating = review.select('.rating-very-large meta')[0].get('content')
+        content = review.select('p')[0].text.strip()
+        date = review.select('.rating-qualifier meta')[0].get('content')
+        reviews.append({'rating': rating, 'content': content, 'date': date})
 
-yelp_api = YelpAPI('Og3Jqb_gCff9zz5XTs7IAw', 'Oh4OlaexbARJK3FMEyal9z1hLZ4', 'NHn0u4AYSxT5AtvFqvaNeD8BtDdxwlMn', 'h1ZpA6oRADU58G0RH7jwWsBWFE4')
+    return reviews
 
-for f in glob.glob("json/*.json"):
-    with open(f, 'r') as jfile:
-        data = json.load(jfile)
-        if 'Addresses' not in data.keys():
-            continue
-        address_info = next((item for item in data['Addresses'] if item['addressTypeName'] == "Physical Address"), None)
-        if address_info is None:
-            continue
-        fax = address_info['faxAreaCode'] + '-' + address_info['faxNumber']
-        name = address_info['name']
-        city = address_info['city']
-        state = address_info['state']
-        search_results = yelp_api.search_query(term=name + ' prison', category_filter='publicservicesgovt', location=city + ',' + state)
-        if len(search_results['businesses']) > 0:
-            print json.dumps(search_results) + ','
-#result = search_results['businesses'][0]
-#for result in search_results['businesses']:
-#    print result['name']
+def scrape(url, sleep=1, sort='date_desc'):
+    """Grabs reviews from a yelp page"""
+    url += '?sort_by=' + sort
+    data = urllib.urlopen(url).read()
+    soup = BeautifulSoup(data)
 
+    # get all urls for pagination
+    links = [url] + [l.get('href') for l in soup.select('.pagination-links a.page-option')]
+
+    reviews = []
+    for link in links:
+        time.sleep(sleep)
+        reviews += get_page(link)
+
+    return reviews
+
+if __name__ == "__main__":
+    import sys, json
+    print json.dumps(scrape(sys.argv[1]), indent=2)

@@ -4,6 +4,7 @@ import csv, urllib, time, json, datetime
 from phaxio import PhaxioApi
 from bs4 import BeautifulSoup
 import ap, numpy as np
+import yelp_scraper
 
 with open('credentials.json') as cfile:
     credentials = json.load(cfile)
@@ -59,35 +60,11 @@ def graph_ratings(reviews):
     #print '-' * 80
     return graph
 
-def get_page(url):
-    """Retrieve yelp reviews from a url"""
-    data = urllib.urlopen(url).read()
-    soup = BeautifulSoup(data)
-    reviews = []
-
-    for review in soup.select('.review-content'):
-        rating = review.select('.rating-very-large meta')[0].get('content')
-        content = review.select('.review_comment')[0].text.strip()
-        date = review.select('.rating-qualifier meta')[0].get('content')
-        reviews.append({'rating': rating, 'content': content, 'date': date})
-
-    return reviews
-
 def scrape_yelp(name, url, fax):
     """ Grabs prison reviews
     Then finds new reviews and sends out faxes
     """
-    url += '?sort_by=date_desc'
-    data = urllib.urlopen(url).read()
-    soup = BeautifulSoup(data)
-
-    # get all urls for pagination
-    links = [url] + [l.get('href') for l in soup.select('.pagination-links a.page-option')]
-
-    reviews = []
-    for link in links:
-        time.sleep(1)
-        reviews += get_page(link)
+    reviews = yelp_scraper.scrape(url)
 
     # find new reviews
     old_reviews = load_reviews(name)
@@ -105,6 +82,4 @@ if __name__ == "__main__":
         data = csv.reader(prisonfile)
         for prison in data:
             name, fax, url = prison
-            #reviews = load_reviews(name)
-            #graph_ratings(reviews)
             scrape_yelp(name, url, fax)
