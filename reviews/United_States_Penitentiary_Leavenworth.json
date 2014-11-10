@@ -1,7 +1,12 @@
 [
   {
-    "content": "First time here and man this place is \"BIG\" man I hope I never have to come here and stay.",
-    "rating": "3.0",
+    "content": "First time here and man this place is \"BIG\" man I hope I never have to come here and stay.", 
+    "rating": "3.0", 
     "date": "2014-09-18"
+  }, 
+  {
+    "content": "Great place to drive by, but I wouldn't want to live there!", 
+    "rating": "5.0", 
+    "date": "2013-08-05"
   }
 ]
