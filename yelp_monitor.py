@@ -10,7 +10,7 @@ with open('credentials.json') as cfile:
 
 fax_api = PhaxioApi(credentials['key'], credentials['secret'])
 
-def send_fax(number, reviews, testing=True):
+def send_fax(number, reviews, testing=False):
     """Concatenates and faxes reviews"""
 
     reviews = ["RATING: {0}/5.0\n{1}".format(r['rating'], r['content'].encode('utf-8')) for r in reviews]
